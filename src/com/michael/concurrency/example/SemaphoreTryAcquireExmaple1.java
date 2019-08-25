@@ -2,13 +2,12 @@ package com.michael.concurrency.example;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 @Slf4j
-public class SemaphoreExmaple1 {
+public class SemaphoreTryAcquireExmaple1 {
 
     public static final int threadCount = 20;
 
@@ -21,11 +20,16 @@ public class SemaphoreExmaple1 {
             final int threadNum = i;
             executorService.execute(() -> {
                 try {
-                    semaphore.acquire();
-                    test(threadNum);
+                    if(semaphore.tryAcquire()) {
+                        test(threadNum);
+                    }
                 } catch (Exception e) {
                     log.error("exception" ,e);
                 } finally {
+                    /**
+                     * 如果不打印下面这行结果是不一样的
+                     * */
+//                    log.error("semaphore.release();");
                     semaphore.release();
                 }
             });
@@ -35,7 +39,7 @@ public class SemaphoreExmaple1 {
     }
 
     private static void test(int threadNum) throws InterruptedException {
-        log.info("{}", threadNum);
+        log.info("threadNum: {}", threadNum);
         Thread.sleep(1000);
     }
 }
